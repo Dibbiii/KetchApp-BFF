@@ -1,7 +1,6 @@
 package alessandra_alessandro.ketchapp_bff.routes;
 
 import alessandra_alessandro.ketchapp_bff.controllers.UsersControllers;
-import alessandra_alessandro.ketchapp_bff.models.apicall.FriendApiCall;
 import alessandra_alessandro.ketchapp_bff.models.responses.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -195,6 +194,5 @@ public class UsersRoutes {
         }
         return ResponseEntity.ok(statistics);
     }
-
 }
 

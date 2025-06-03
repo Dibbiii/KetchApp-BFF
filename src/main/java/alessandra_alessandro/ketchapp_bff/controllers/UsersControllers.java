@@ -32,7 +32,7 @@ public class UsersControllers {
 
     public UserResponse createUser(UserResponse UserResponse) {
         String url = "/users";
-        UserApiCall response = ApiCall.post(url, UserApiCall.class);
+        UserApiCall response = ApiCall.post(url, UserResponse, UserApiCall.class);
         if (response == null) {
             return null;
         }
