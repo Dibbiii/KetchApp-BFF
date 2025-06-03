@@ -1,6 +1,5 @@
-package alessandra_alessandro.ketchapp_bff.models.responses;
+package alessandra_alessandro.ketchapp_bff.models.apicall;
 
-import jdk.jfr.Name;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class AppointmentResponse {
+public class AppointmentApiCall {
     private String id;
 
     private UUID userUUID;

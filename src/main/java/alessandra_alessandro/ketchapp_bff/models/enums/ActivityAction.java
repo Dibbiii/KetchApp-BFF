@@ -1,4 +1,4 @@
-package com.alessandra_alessandro.ketchapp.models.enums;
+package alessandra_alessandro.ketchapp_bff.models.enums;
 
 public enum ActivityAction {
     START,

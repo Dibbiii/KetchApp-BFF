@@ -14,16 +14,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class AppointmentResponse {
+public class FriendResponse {
     private String id;
 
     private UUID userUUID;
 
-    private String name;
-
-    private Timestamp startAt;
-
-    private Timestamp endAt;
+    private UUID friendUUID;
 
     private Timestamp createdAt;
 }

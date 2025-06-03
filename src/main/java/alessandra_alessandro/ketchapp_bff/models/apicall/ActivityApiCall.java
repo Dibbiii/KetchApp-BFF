@@ -1,4 +1,4 @@
-package alessandra_alessandro.ketchapp_bff.models.responses;
+package alessandra_alessandro.ketchapp_bff.models.apicall;
 
 import alessandra_alessandro.ketchapp_bff.models.enums.ActivityAction;
 import alessandra_alessandro.ketchapp_bff.models.enums.ActivityType;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class ActivityResponse {
+public class ActivityApiCall {
     private Integer id;
 
     private UUID userUUID;
@@ -28,4 +28,3 @@ public class ActivityResponse {
 
     private Timestamp createdAt;
 }
-

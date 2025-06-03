@@ -1,6 +1,5 @@
-package alessandra_alessandro.ketchapp_bff.models.responses;
+package alessandra_alessandro.ketchapp_bff.models.apicall;
 
-import jdk.jfr.Name;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,16 +13,22 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class AppointmentResponse {
-    private String id;
+public class TomatoApiCall {
+    private Integer id;
 
     private UUID userUUID;
 
-    private String name;
+    private Integer groupId;
 
     private Timestamp startAt;
 
     private Timestamp endAt;
+
+    private Timestamp pauseEnd;
+
+    private Integer nextTomatoId;
+
+    private String subject;
 
     private Timestamp createdAt;
 }
