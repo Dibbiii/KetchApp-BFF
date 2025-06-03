@@ -26,9 +26,6 @@ public class FriendsRoutes {
     @GetMapping
     public ResponseEntity<List<FriendResponse>> getFriends() {
         List<FriendResponse> friends = friendsControllers.getFriends();
-        if (friends.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(friends);
     }
 
@@ -42,7 +39,7 @@ public class FriendsRoutes {
     public ResponseEntity<FriendResponse> getFriend(@PathVariable("uuid") UUID uuid) {
         FriendResponse friend = friendsControllers.getFriend(uuid);
         if (friend == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(500).build();
         }
         return ResponseEntity.ok(friend);
     }
@@ -72,7 +69,7 @@ public class FriendsRoutes {
     public ResponseEntity<FriendResponse> deleteFriend(@PathVariable("uuid") UUID uuid) {
         FriendResponse deletedFriend = friendsControllers.deleteFriend(uuid);
         if (deletedFriend == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(500).build();
         }
         return ResponseEntity.ok(deletedFriend);
     }
