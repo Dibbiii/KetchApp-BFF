@@ -32,8 +32,8 @@ public class AchievementsRoutes {
     @GetMapping
     public ResponseEntity<List<AchievementResponse>> getAchievements() {
         List<AchievementResponse> achievements = achievementsControllers.getAchievements();
-        if (achievements.isEmpty()) {
-            return ResponseEntity.noContent().build();
+        if (achievements == null || achievements.isEmpty()) {
+            return ResponseEntity.status(500).build();
         }
         return ResponseEntity.ok(achievements);
     }
@@ -50,7 +50,7 @@ public class AchievementsRoutes {
     public ResponseEntity<AchievementResponse> getAchievement(@PathVariable("uuid") UUID uuid) {
         AchievementResponse achievement = achievementsControllers.getAchievement(uuid);
         if (achievement == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(500).build();
         }
         return ResponseEntity.ok(achievement);
     }
@@ -81,7 +81,7 @@ public class AchievementsRoutes {
     public ResponseEntity<AchievementResponse> deleteAchievement(@PathVariable("uuid") UUID uuid) {
         AchievementResponse achievement = achievementsControllers.deleteAchievement(uuid);
         if (achievement == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(500).build();
         }
         return ResponseEntity.ok(achievement);
     }
