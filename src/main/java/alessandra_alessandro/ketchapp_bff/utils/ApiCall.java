@@ -1,43 +1,75 @@
 package alessandra_alessandro.ketchapp_bff.utils;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 public class ApiCall {
     public static final String BASE_URL = "http://151.42.71.194:8081/api";
+    private static final HttpClient httpClient = HttpClient.newHttpClient();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static<T> T get(String route) {
+    public static <T> T get(String route, TypeReference<T> typeReference) {
         String url = BASE_URL + route;
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<T> response = restTemplate.getForEntity(url, (Class<T>) Object.class);
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            return response.getBody();
-        } else {
-            System.err.println("Error: " + response.getStatusCode());
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                return objectMapper.readValue(response.body(), typeReference);
+            } else {
+                System.err.println("Error: " + response.statusCode());
+                return null;
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
             return null;
         }
     }
 
-    public static <T> T post(String route) {
+    public static <T> T post(String route, Class<T> responseType) {
         String url = BASE_URL + route;
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<T> response = restTemplate.postForEntity(url, null, (Class<T>) Object.class);
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            return response.getBody();
-        } else {
-            System.err.println("Error: " + response.getStatusCode());
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+        try {
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                return objectMapper.readValue(response.body(), responseType);
+            } else {
+                System.err.println("Error: " + response.statusCode());
+                return null;
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
             return null;
         }
     }
 
-    public static <T> T delete(String route) {
+    public static <T> T delete(String route, Class<T> responseType) {
         String url = BASE_URL + route;
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<T> response = restTemplate.exchange(url, org.springframework.http.HttpMethod.DELETE, null, (Class<T>) Object.class);
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            return response.getBody();
-        } else {
-            System.err.println("Error: " + response.getStatusCode());
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .DELETE()
+                .build();
+        try {
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                return objectMapper.readValue(response.body(), responseType);
+            } else {
+                System.err.println("Error: " + response.statusCode());
+                return null;
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
             return null;
         }
     }

@@ -3,24 +3,25 @@ package alessandra_alessandro.ketchapp_bff.controllers;
 import alessandra_alessandro.ketchapp_bff.models.apicall.*;
 import alessandra_alessandro.ketchapp_bff.models.responses.*;
 import alessandra_alessandro.ketchapp_bff.utils.ApiCall;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class UsersControllers {
-    @Autowired
-    RestTemplate restTemplate;
-
     public List<UserResponse> getUsers() {
         String url = "/users";
-        List<UserApiCall> response = ApiCall.get(url);
-        assert response != null : "Failed to fetch users from API";
-        return response.stream()
+        UserApiCall[] response = ApiCall.get(url, new TypeReference<UserApiCall[]>() {});
+        if (response == null) {
+            return List.of();
+        }
+        return Arrays.stream(response)
                 .map(user -> new UserResponse(
                         user.getUuid(),
                         user.getUsername(),
@@ -31,8 +32,10 @@ public class UsersControllers {
 
     public UserResponse createUser(UserResponse UserResponse) {
         String url = "/users";
-        UserApiCall response = ApiCall.post(url);
-        assert response != null : "Failed to create user with request: " + UserResponse;
+        UserApiCall response = ApiCall.post(url, UserApiCall.class);
+        if (response == null) {
+            return null;
+        }
         return new UserResponse(
                 response.getUuid(),
                 response.getUsername(),
@@ -42,8 +45,10 @@ public class UsersControllers {
 
     public UserResponse deleteUser(UUID uuid) {
         String url = "/users/" + uuid;
-        UserApiCall response = ApiCall.delete(url);
-        assert response != null : "Failed to delete user with UUID: " + uuid;
+        UserApiCall response = ApiCall.delete(url, UserApiCall.class);
+        if (response == null) {
+            return null;
+        }
         return new UserResponse(
                 response.getUuid(),
                 response.getUsername(),
@@ -53,8 +58,10 @@ public class UsersControllers {
 
     public UserResponse getUserByUuid(UUID uuid) {
         String url = "/users/" + uuid;
-        UserApiCall response = ApiCall.get(url);
-        assert response != null : "Failed to fetch user by UUID: " + uuid;
+        UserApiCall response = ApiCall.get(url, new TypeReference<UserApiCall>() {});
+        if (response == null) {
+            return null;
+        }
         return new UserResponse(
                 response.getUuid(),
                 response.getUsername(),
@@ -64,9 +71,10 @@ public class UsersControllers {
 
     public UserResponse getEmailByUsername(String username) {
         String url = "/users/email/" + username;
-        UserApiCall response = ApiCall.get(url);
-        assert response != null : "Failed to fetch email for username: " + username;
-        assert response.getEmail() != null : "Email not found for username: " + username;
+        UserApiCall response = ApiCall.get(url, new TypeReference<UserApiCall>() {});
+        if (response == null || response.getEmail() == null) {
+            return null;
+        }
         return new UserResponse(
                 response.getUuid(),
                 response.getUsername(),
@@ -76,9 +84,11 @@ public class UsersControllers {
 
     public List<TomatoResponse> getUserTomatoes(UUID uuid) {
         String url = "/users/" + uuid + "/tomatoes";
-        List<TomatoApiCall> response = ApiCall.get(url);
-        assert response != null : "Failed to fetch tomatoes for user UUID: " + uuid;
-        return response.stream()
+        TomatoApiCall[] response = ApiCall.get(url, new TypeReference<TomatoApiCall[]>() {});
+        if (response == null) {
+            return List.of();
+        }
+        return Arrays.stream(response)
                 .map(tomato -> new TomatoResponse(
                         tomato.getId(),
                         tomato.getUserUUID(),
@@ -95,9 +105,11 @@ public class UsersControllers {
 
     public List<ActivityResponse> getActivitiesByUserUuid(UUID uuid) {
         String url = "/users/" + uuid + "/activities";
-        List<ActivityApiCall> response = ApiCall.get(url);
-        assert response != null : "Failed to fetch activities for user UUID: " + uuid;
-        return response.stream()
+        ActivityApiCall[] response = ApiCall.get(url, new TypeReference<ActivityApiCall[]>() {});
+        if (response == null) {
+            return List.of();
+        }
+        return Arrays.stream(response)
                 .map(activity -> new ActivityResponse(
                         activity.getId(),
                         activity.getUserUUID(),
@@ -111,9 +123,11 @@ public class UsersControllers {
 
     public List<AppointmentResponse> getAppointmentsByUserUuid(UUID uuid) {
         String url = "/users/" + uuid + "/appointments";
-        List<AppointmentApiCall> response = ApiCall.get(url);
-        assert response != null : "Failed to fetch appointments for user UUID: " + uuid;
-        return response.stream()
+        AppointmentApiCall[] response = ApiCall.get(url, new TypeReference<AppointmentApiCall[]>() {});
+        if (response == null) {
+            return List.of();
+        }
+        return Arrays.stream(response)
                 .map(appointment -> new AppointmentResponse(
                         appointment.getId(),
                         appointment.getUserUUID(),
@@ -127,9 +141,11 @@ public class UsersControllers {
 
     public List<AchievementResponse> getAchievementsByUserUuid(UUID uuid) {
         String url = "/users/" + uuid + "/achievements";
-        List<AchievementApiCall> response = ApiCall.get(url);
-        assert response != null : "Failed to fetch achievements for user UUID: " + uuid;
-        return response.stream()
+        AchievementApiCall[] response = ApiCall.get(url, new TypeReference<AchievementApiCall[]>() {});
+        if (response == null) {
+            return List.of();
+        }
+        return Arrays.stream(response)
                 .map(achievement -> new AchievementResponse(
                         achievement.getId(),
                         achievement.getUserUUID(),
@@ -141,9 +157,11 @@ public class UsersControllers {
 
     public List<FriendResponse> getFriendsByUserUuid(UUID uuid) {
         String url = "/users/" + uuid + "/friends";
-        List<FriendApiCall> response = ApiCall.get(url);
-        assert response != null : "Failed to fetch friends for user UUID: " + uuid;
-        return response.stream()
+        FriendApiCall[] response = ApiCall.get(url, new TypeReference<FriendApiCall[]>() {});
+        if (response == null) {
+            return List.of();
+        }
+        return Arrays.stream(response)
                 .map(friend -> new FriendResponse(
                         friend.getId(),
                         friend.getUserUUID(),
@@ -152,4 +170,27 @@ public class UsersControllers {
                 ))
                 .collect(Collectors.toList());
     }
+
+    public StatisticsResponse getStatisticsByUserUuid(UUID uuid, LocalDate date) {
+        String url = "/users/" + uuid + "/statistics" + "?date=" + date.toString();
+        StatisticsApiCall response = ApiCall.get(url, new TypeReference<StatisticsApiCall>() {});
+        if (response == null || response.getDates() == null) {
+            return null;
+        }
+        return new StatisticsResponse(
+            response.getDates().stream()
+                .map(dateApi -> new StatisticsDateResponse(
+                    dateApi.getDate(),
+                    dateApi.getHours(),
+                    dateApi.getSubjects() == null ? List.of() : dateApi.getSubjects().stream()
+                        .map(subjectApi -> new StatisticsSubjectResponse(
+                            subjectApi.getName(),
+                            subjectApi.getHours()
+                        ))
+                        .collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList())
+        );
+    }
 }
+

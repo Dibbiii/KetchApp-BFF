@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,7 +68,7 @@ public class UsersRoutes {
     public ResponseEntity<UserResponse> getUserByUuid(@PathVariable UUID uuid) {
         UserResponse user = usersController.getUserByUuid(uuid);
         if (user == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(500).body(null);
         }
         return ResponseEntity.ok(user);
     }
@@ -84,13 +85,14 @@ public class UsersRoutes {
     public ResponseEntity<String> getEmailByUsername(@PathVariable String username) {
         UserResponse userResponse = usersController.getEmailByUsername(username);
         if (userResponse == null) {
-            return ResponseEntity.status(404).body("Username non trovato");
+            return ResponseEntity.status(500).body(null);
         }
         if (userResponse.getEmail() == null) {
-            return ResponseEntity.status(404).body("Email non trovata per questo username");
+            return ResponseEntity.status(404).body(null);
         }
         return ResponseEntity.ok(userResponse.getEmail());
     }
+
     @Operation(summary = "Get user's Tomatoes", description = "Fetches the number of tomatoes for a user by their UUID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user's tomatoes",
@@ -102,8 +104,8 @@ public class UsersRoutes {
     @GetMapping("/{uuid}/tomatoes")
     public ResponseEntity<List<TomatoResponse>> getUserTomatoes(@PathVariable UUID uuid) {
         List<TomatoResponse> tomatoes = usersController.getUserTomatoes(uuid);
-        if (tomatoes == null || tomatoes.isEmpty()) {
-            return ResponseEntity.status(404).body(null);
+        if (tomatoes == null) {
+            return ResponseEntity.status(500).body(null);
         }
         return ResponseEntity.ok(tomatoes);
     }
@@ -119,8 +121,8 @@ public class UsersRoutes {
     @GetMapping("/{uuid}/activities")
     public ResponseEntity<List<ActivityResponse>> getActivitiesByUserUuid(@PathVariable UUID uuid) {
         List<ActivityResponse> activities = usersController.getActivitiesByUserUuid(uuid);
-        if (activities == null || activities.isEmpty()) {
-            return ResponseEntity.status(404).body(null);
+        if (activities == null) {
+            return ResponseEntity.status(500).body(null);
         }
         return ResponseEntity.ok(activities);
     }
@@ -136,8 +138,8 @@ public class UsersRoutes {
     @GetMapping("/{uuid}/appointments")
     public ResponseEntity<List<AppointmentResponse>> getAppointmentsByUserUuid(@PathVariable UUID uuid) {
         List<AppointmentResponse> appointments = usersController.getAppointmentsByUserUuid(uuid);
-        if (appointments == null || appointments.isEmpty()) {
-            return ResponseEntity.status(404).body(null);
+        if (appointments == null) {
+            return ResponseEntity.status(500).body(null);
         }
         return ResponseEntity.ok(appointments);
     }
@@ -153,8 +155,8 @@ public class UsersRoutes {
     @GetMapping("/{uuid}/achievements")
     public ResponseEntity<List<AchievementResponse>> getAchievementsByUserUuid(@PathVariable UUID uuid) {
         List<AchievementResponse> achievements = usersController.getAchievementsByUserUuid(uuid);
-        if (achievements == null || achievements.isEmpty()) {
-            return ResponseEntity.status(404).body(null);
+        if (achievements == null) {
+            return ResponseEntity.status(500).body(null);
         }
         return ResponseEntity.ok(achievements);
     }
@@ -170,10 +172,29 @@ public class UsersRoutes {
     @GetMapping("/{uuid}/friends")
     public ResponseEntity<List<FriendResponse>> getFriendsByUserUuid(@PathVariable UUID uuid) {
         List<FriendResponse> friends = usersController.getFriendsByUserUuid(uuid);
-        if (friends == null || friends.isEmpty()) {
-            return ResponseEntity.status(404).body(null);
+        if (friends == null) {
+            return ResponseEntity.status(500).body(null);
         }
         return ResponseEntity.ok(friends);
     }
 
+    @Operation(summary = "Get statistics by user UUID", description = "Fetches statistics for a specific user by their UUID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved statistics for user",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = StatisticsResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/{uuid}/statistics")
+    public ResponseEntity<StatisticsResponse> getStatisticsByUserUuid(@PathVariable UUID uuid,
+                                                                      @RequestParam (required = true) LocalDate date){
+        StatisticsResponse statistics = usersController.getStatisticsByUserUuid(uuid, date);
+        if (statistics == null) {
+            return ResponseEntity.status(500).body(null);
+        }
+        return ResponseEntity.ok(statistics);
+    }
+
 }
+
