@@ -63,7 +63,4 @@ public class AchievementsControllers {
         AchievementApiCall response = ApiCall.delete(url, AchievementApiCall.class);
         return convertApiCallToResponse(response);
     }
-    
-    
-    
 }

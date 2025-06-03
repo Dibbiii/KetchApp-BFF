@@ -85,7 +85,4 @@ public class AchievementsRoutes {
         }
         return ResponseEntity.ok(achievement);
     }
-    
-    
-    
 }
