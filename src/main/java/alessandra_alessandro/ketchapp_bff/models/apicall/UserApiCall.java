@@ -26,4 +26,9 @@ public class UserApiCall {
     
     private Timestamp createdAt;
 
+    public UserApiCall(UUID uuid, String username, String email) {
+        this.uuid = uuid;
+        this.username = username;
+        this.email = email;
+    }
 }

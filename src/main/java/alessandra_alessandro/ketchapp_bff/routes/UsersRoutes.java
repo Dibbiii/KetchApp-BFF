@@ -1,6 +1,6 @@
 package alessandra_alessandro.ketchapp_bff.routes;
 
-import alessandra_alessandro.ketchapp_bff.controller.UsersControllers;
+import alessandra_alessandro.ketchapp_bff.controllers.UsersControllers;
 import alessandra_alessandro.ketchapp_bff.models.apicall.FriendApiCall;
 import alessandra_alessandro.ketchapp_bff.models.responses.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,12 +25,12 @@ public class UsersRoutes {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user records",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserApiResponse.class))),
+                            schema = @Schema(implementation = UserResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping
-    public ResponseEntity<List<UserApiResponse>> getUsers() {
-        List<UserApiResponse> users = usersController.getUsers();
+    public ResponseEntity<List<UserResponse>> getUsers() {
+        List<UserResponse> users = usersController.getUsers();
         if (users.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -38,8 +38,8 @@ public class UsersRoutes {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
-        UserResponse createdUser = usersController.createUser(userRequest);
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserResponse userResponse) {
+        UserResponse createdUser = usersController.createUser(userResponse);
         if (createdUser == null) {
             return ResponseEntity.status(500).build();
         }
@@ -169,7 +169,7 @@ public class UsersRoutes {
     })
     @GetMapping("/{uuid}/friends")
     public ResponseEntity<List<FriendResponse>> getFriendsByUserUuid(@PathVariable UUID uuid) {
-        List<FriendApiCall> friends = usersController.getFriendsByUserUuid(uuid);
+        List<FriendResponse> friends = usersController.getFriendsByUserUuid(uuid);
         if (friends == null || friends.isEmpty()) {
             return ResponseEntity.status(404).body(null);
         }
