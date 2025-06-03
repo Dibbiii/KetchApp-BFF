@@ -188,7 +188,7 @@ public class UsersRoutes {
     })
     @GetMapping("/{uuid}/statistics")
     public ResponseEntity<StatisticsResponse> getStatisticsByUserUuid(@PathVariable UUID uuid,
-                                                                      @RequestParam (required = true) LocalDate date){
+                                                                      @RequestParam LocalDate date){
         StatisticsResponse statistics = usersController.getStatisticsByUserUuid(uuid, date);
         if (statistics == null) {
             return ResponseEntity.status(500).body(null);
