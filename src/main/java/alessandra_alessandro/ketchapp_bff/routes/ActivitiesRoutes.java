@@ -1,7 +1,9 @@
 package alessandra_alessandro.ketchapp_bff.routes;
 
 import alessandra_alessandro.ketchapp_bff.controllers.ActivitiesControllers;
+import alessandra_alessandro.ketchapp_bff.controllers.PlanBuilderControllers;
 import alessandra_alessandro.ketchapp_bff.models.responses.ActivityResponse;
+import alessandra_alessandro.ketchapp_bff.models.responses.PlanBuilder.PlanBuilderResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -65,5 +67,23 @@ public class ActivitiesRoutes {
             return ResponseEntity.status(500).build();
         }
         return ResponseEntity.ok(deletedActivity);
+    }
+
+    @RestController
+    @RequestMapping("/api/plans")
+    public static class PlanBuilderRoutes {
+        @Autowired
+        PlanBuilderControllers planBuilderControllers;
+        
+        @Operation(summary = "Plan Builder API", description = "Endpoints for managing plan building operations.")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operation successful"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
+        @PostMapping
+        public ResponseEntity<PlanBuilderResponse> createPlanBuilder(@RequestBody PlanBuilderResponse planBuilderResponse) {
+            return ResponseEntity.ok(planBuilderControllers.createPlanBuilder(planBuilderResponse));
+        }
     }
 }
