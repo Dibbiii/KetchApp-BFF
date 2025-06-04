@@ -32,7 +32,7 @@ public class AchievementsRoutes {
     @GetMapping
     public ResponseEntity<List<AchievementResponse>> getAchievements() {
         List<AchievementResponse> achievements = achievementsControllers.getAchievements();
-        if (achievements == null || achievements.isEmpty()) {
+        if (achievements == null) {
             return ResponseEntity.status(500).build();
         }
         return ResponseEntity.ok(achievements);

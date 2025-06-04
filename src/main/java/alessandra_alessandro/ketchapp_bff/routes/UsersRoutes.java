@@ -31,9 +31,6 @@ public class UsersRoutes {
     @GetMapping
     public ResponseEntity<List<UserResponse>> getUsers() {
         List<UserResponse> users = usersController.getUsers();
-        if (users.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(users);
     }
 
