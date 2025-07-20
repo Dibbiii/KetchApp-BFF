@@ -1,5 +1,6 @@
 package alessandra_alessandro.ketchapp_bff.models.requests;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import jakarta.validation.Valid;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlanBuilderRequest {
-    private UUID userID;
+    private UUID userId;
 
     private String session;
 
