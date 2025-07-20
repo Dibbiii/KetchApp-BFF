@@ -1,6 +1,7 @@
 package alessandra_alessandro.ketchapp_bff.routes;
 
 import alessandra_alessandro.ketchapp_bff.controllers.PlanBuilderControllers;
+import alessandra_alessandro.ketchapp_bff.models.requests.PlanBuilderRequest;
 import alessandra_alessandro.ketchapp_bff.models.responses.PlanBuilderResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,7 +26,7 @@ public class PlanBuilderRoutes {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping
-    public ResponseEntity<PlanBuilderResponse> createPlanBuilder(@RequestBody PlanBuilderResponse planBuilderResponse) {
+    public ResponseEntity<PlanBuilderResponse> createPlanBuilder(@RequestBody PlanBuilderRequest planBuilderResponse) {
         return ResponseEntity.ok(planBuilderControllers.createPlanBuilder(planBuilderResponse));
     }
 }
