@@ -16,6 +16,13 @@ import org.slf4j.LoggerFactory;
 public class AuthenticationControllers {
     private static final Logger log = LoggerFactory.getLogger(AuthenticationControllers.class);
 
+    /**
+     * Authenticates a user by sending login credentials to the authentication service.
+     *
+     * @param dto the login request data containing username/email and password
+     * @return AuthUserResponse containing authentication and user information
+     * @throws ApiCallException if authentication fails or the response is invalid
+     */
     public AuthUserResponse login(LoginRequest dto) {
         String url = "/login";
         try {
@@ -33,15 +40,24 @@ public class AuthenticationControllers {
         }
     }
 
+    /**
+     * Registers a new user by sending the registration data to the authentication service.
+     * If successful, creates the user in the main database using the received token.
+     *
+     * @param dto the registration request data
+     * @return AuthUserResponse containing authentication and user information
+     * @throws ApiCallException if registration or user creation fails
+     */
     public AuthUserResponse register(RegisterRequest dto) {
         try {
             AuthUserResponse res = ApiCall.post(ApiCallUrl.AUTH_URL, "/register", dto, AuthUserResponse.class);
             if (res != null) {
                 CreateUserRequest createUserRequest = new CreateUserRequest(res.getId(), res.getUsername(), res.getEmail());
-                Object userDbResApi = ApiCall.post(ApiCallUrl.BASE_URL, "/api/users", createUserRequest, Object.class);
-                Object userDbRes = ApiCall.post(ApiCallUrl.BASE_URL, "/users", createUserRequest, Object.class);
-                if (userDbResApi == null || userDbRes == null) {
-                    log.error("Register failed: user creation in main DB failed (one or both endpoints)");
+                // Send createUserRequest to /users with the token
+                String token = res.getToken();
+                Object userDbRes = ApiCall.postWithToken(ApiCallUrl.BASE_URL, "/users", createUserRequest, Object.class, token);
+                if (userDbRes == null) {
+                    log.error("Register failed: user creation in main DB failed (/users endpoint)");
                     throw new ApiCallException(new ErrorResponse(500, "InternalError", "Unknown error"));
                 }
                 return res;

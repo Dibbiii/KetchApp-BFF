@@ -145,4 +145,34 @@ public class ApiCall {
             return null;
         }
     }
+
+    /**
+     * Sends a POST request to the specified API URL and route with the given DTO as the request body,
+     * and parses the response into the specified response type, using the provided Bearer token for authorization.
+     *
+     * @param apiurl       the base API URL as an ApiCallUrl enum
+     * @param route        the specific route to append to the base URL
+     * @param dto          the request body object to be serialized as JSON
+     * @param responseType the class of the response type for deserialization
+     * @param token        the Bearer token to be used for authorization
+     * @param <T>          the type of the request body object
+     * @param <R>          the type of the response object
+     * @return the parsed response object, or null if the request fails
+     */
+    public static <T, R> R postWithToken(ApiCallUrl apiurl, String route, T dto, Class<R> responseType, String token) {
+        String url = apiurl.toString() + route;
+        try {
+            String requestBody = objectMapper.writeValueAsString(dto);
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token)
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody));
+            HttpRequest request = builder.build();
+            return sendRequest(request, null, responseType);
+        } catch (IOException | InterruptedException e) {
+            log.error("POST request with token failed: {}", e.getMessage());
+            return null;
+        }
+    }
 }
