@@ -34,24 +34,6 @@ public class UsersRoutes {
         return ResponseEntity.ok(users);
     }
 
-    @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserResponse userResponse) {
-        UserResponse createdUser = usersController.createUser(userResponse);
-        if (createdUser == null) {
-            return ResponseEntity.status(500).build();
-        }
-        return ResponseEntity.ok(createdUser);
-    }
-
-    @DeleteMapping("/{uuid}")
-    public ResponseEntity<UserResponse> deleteUser(@PathVariable UUID uuid) {
-        UserResponse deleteUser = usersController.deleteUser(uuid);
-        if (deleteUser == null) {
-            return ResponseEntity.status(500).build();
-        }
-        return ResponseEntity.ok(deleteUser);
-    }
-
     @Operation(summary = "Get user by UUID", description = "Fetches a user record by its UUID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user record",
@@ -123,23 +105,6 @@ public class UsersRoutes {
         return ResponseEntity.ok(activities);
     }
 
-    @Operation(summary = "Get appointments by user UUID", description = "Fetches a list of appointments for a specific user by their UUID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved appointments for user",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AppointmentResponse.class))),
-            @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/{uuid}/appointments")
-    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByUserUuid(@PathVariable UUID uuid) {
-        List<AppointmentResponse> appointments = usersController.getAppointmentsByUserUuid(uuid);
-        if (appointments == null) {
-            return ResponseEntity.status(500).body(null);
-        }
-        return ResponseEntity.ok(appointments);
-    }
-
     @Operation(summary = "Get achievements by user UUID", description = "Fetches a list of achievements for a specific user by their UUID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved achievements for user",
@@ -155,23 +120,6 @@ public class UsersRoutes {
             return ResponseEntity.status(500).body(null);
         }
         return ResponseEntity.ok(achievements);
-    }
-
-    @Operation(summary = "Get friends by user UUID", description = "Fetches a list of friends for a specific user by their UUID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved friends for user",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = FriendResponse.class))),
-            @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/{uuid}/friends")
-    public ResponseEntity<List<FriendResponse>> getFriendsByUserUuid(@PathVariable UUID uuid) {
-        List<FriendResponse> friends = usersController.getFriendsByUserUuid(uuid);
-        if (friends == null) {
-            return ResponseEntity.status(500).body(null);
-        }
-        return ResponseEntity.ok(friends);
     }
 
     @Operation(summary = "Get statistics by user UUID", description = "Fetches statistics for a specific user by their UUID.")

@@ -15,8 +15,8 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("KetchApp API")
-                        .description("API documentation for KetchApp application")
+                        .title("KetchApp BFF API Documentation")
+                        .description("API documentation for KetchApp BFF application")
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Alessandra & Alessandro")

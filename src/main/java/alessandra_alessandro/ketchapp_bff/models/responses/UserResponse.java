@@ -1,23 +1,14 @@
 package alessandra_alessandro.ketchapp_bff.models.responses;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.sql.Timestamp;
-import java.util.UUID;
-
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
-public class UserResponse { 
-    
-    private UUID uuid;
-    
-    private String username;
-    
+@NoArgsConstructor
+public class UserResponse {
+    private String userUuid;
     private String email;
-    
+    private String username;
 }

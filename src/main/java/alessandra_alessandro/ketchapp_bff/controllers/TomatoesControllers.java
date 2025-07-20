@@ -1,15 +1,13 @@
 package alessandra_alessandro.ketchapp_bff.controllers;
 
 import alessandra_alessandro.ketchapp_bff.models.apicall.TomatoApiCall;
+import alessandra_alessandro.ketchapp_bff.models.enums.ApiCallUrl;
 import alessandra_alessandro.ketchapp_bff.models.responses.TomatoResponse;
 import alessandra_alessandro.ketchapp_bff.utils.ApiCall;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @Service
 public class TomatoesControllers {
@@ -47,29 +45,17 @@ public class TomatoesControllers {
         );
     }
     
-    public List<TomatoResponse> getTomatoes() {
-        String url = "/tomatoes";
-        TomatoApiCall[] response = ApiCall.get(url, new TypeReference<TomatoApiCall[]>() {});
-        return Stream.of(Objects.requireNonNull(response))
-                .map(this::convertApiCallToResponse)
-                .toList();
-    }
-    
     public TomatoResponse getTomato(UUID uuid) {
         String url = "/tomatoes/" + uuid;
-        TomatoApiCall response = ApiCall.get(url, new TypeReference<TomatoApiCall>() {});
+        TomatoApiCall response = ApiCall.get(ApiCallUrl.BASE_URL, url, new TypeReference<>() {
+        });
         return convertApiCallToResponse(response);
     }
     
     public TomatoResponse createTomato(TomatoResponse tomatoResponse) {
         String url = "/tomatoes";
-        TomatoApiCall response = ApiCall.post(url, convertResponseToApiCall(tomatoResponse), TomatoApiCall.class);
+        TomatoApiCall response = ApiCall.post(ApiCallUrl.BASE_URL, url, convertResponseToApiCall(tomatoResponse), TomatoApiCall.class);
         return convertApiCallToResponse(response);
     }
-    
-    public TomatoResponse deleteTomato(UUID uuid) {
-        String url = "/tomatoes/" + uuid;
-        TomatoApiCall response = ApiCall.delete(url, TomatoApiCall.class);
-        return convertApiCallToResponse(response);
-    }
+
 }

@@ -1,13 +1,13 @@
 package alessandra_alessandro.ketchapp_bff.controllers;
 
 import alessandra_alessandro.ketchapp_bff.models.apicall.*;
+import alessandra_alessandro.ketchapp_bff.models.enums.ApiCallUrl;
 import alessandra_alessandro.ketchapp_bff.models.responses.*;
 import alessandra_alessandro.ketchapp_bff.utils.ApiCall;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
 public class UsersControllers {
     public List<UserResponse> getUsers() {
         String url = "/users";
-        UserApiCall[] response = ApiCall.get(url, new TypeReference<UserApiCall[]>() {});
+        UserApiCall[] response = ApiCall.get(ApiCallUrl.BASE_URL, url, new TypeReference<>() {
+        });
         if (response == null) {
             return List.of();
         }
@@ -30,35 +31,10 @@ public class UsersControllers {
                 .collect(Collectors.toList());
     }
 
-    public UserResponse createUser(UserResponse UserResponse) {
-        String url = "/users";
-        UserApiCall response = ApiCall.post(url, UserResponse, UserApiCall.class);
-        if (response == null) {
-            return null;
-        }
-        return new UserResponse(
-                response.getUuid(),
-                response.getUsername(),
-                response.getEmail()
-        );
-    }
-
-    public UserResponse deleteUser(UUID uuid) {
-        String url = "/users/" + uuid;
-        UserApiCall response = ApiCall.delete(url, UserApiCall.class);
-        if (response == null) {
-            return null;
-        }
-        return new UserResponse(
-                response.getUuid(),
-                response.getUsername(),
-                response.getEmail()
-        );
-    }
-
     public UserResponse getUserByUuid(UUID uuid) {
         String url = "/users/" + uuid;
-        UserApiCall response = ApiCall.get(url, new TypeReference<UserApiCall>() {});
+        UserApiCall response = ApiCall.get(ApiCallUrl.BASE_URL, url, new TypeReference<>() {
+        });
         if (response == null) {
             return null;
         }
@@ -71,7 +47,8 @@ public class UsersControllers {
 
     public UserResponse getEmailByUsername(String username) {
         String url = "/users/email/" + username;
-        UserApiCall response = ApiCall.get(url, new TypeReference<UserApiCall>() {});
+        UserApiCall response = ApiCall.get(ApiCallUrl.BASE_URL,url, new TypeReference<>() {
+        });
         if (response == null || response.getEmail() == null) {
             return null;
         }
@@ -84,7 +61,8 @@ public class UsersControllers {
 
     public List<TomatoResponse> getUserTomatoes(UUID uuid) {
         String url = "/users/" + uuid + "/tomatoes";
-        TomatoApiCall[] response = ApiCall.get(url, new TypeReference<TomatoApiCall[]>() {});
+        TomatoApiCall[] response = ApiCall.get(ApiCallUrl.BASE_URL, url, new TypeReference<>() {
+        });
         if (response == null) {
             return List.of();
         }
@@ -105,7 +83,8 @@ public class UsersControllers {
 
     public List<ActivityResponse> getActivitiesByUserUuid(UUID uuid) {
         String url = "/users/" + uuid + "/activities";
-        ActivityApiCall[] response = ApiCall.get(url, new TypeReference<ActivityApiCall[]>() {});
+        ActivityApiCall[] response = ApiCall.get(ApiCallUrl.BASE_URL,url, new TypeReference<>() {
+        });
         if (response == null) {
             return List.of();
         }
@@ -121,27 +100,10 @@ public class UsersControllers {
                 .collect(Collectors.toList());
     }
 
-    public List<AppointmentResponse> getAppointmentsByUserUuid(UUID uuid) {
-        String url = "/users/" + uuid + "/appointments";
-        AppointmentApiCall[] response = ApiCall.get(url, new TypeReference<AppointmentApiCall[]>() {});
-        if (response == null) {
-            return List.of();
-        }
-        return Arrays.stream(response)
-                .map(appointment -> new AppointmentResponse(
-                        appointment.getId(),
-                        appointment.getUserUUID(),
-                        appointment.getName(),
-                        appointment.getStartAt(),
-                        appointment.getEndAt(),
-                        appointment.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
-    }
-
     public List<AchievementResponse> getAchievementsByUserUuid(UUID uuid) {
         String url = "/users/" + uuid + "/achievements";
-        AchievementApiCall[] response = ApiCall.get(url, new TypeReference<AchievementApiCall[]>() {});
+        AchievementApiCall[] response = ApiCall.get(ApiCallUrl.BASE_URL, url, new TypeReference<>() {
+        });
         if (response == null) {
             return List.of();
         }
@@ -155,35 +117,20 @@ public class UsersControllers {
                 .collect(Collectors.toList());
     }
 
-    public List<FriendResponse> getFriendsByUserUuid(UUID uuid) {
-        String url = "/users/" + uuid + "/friends";
-        FriendApiCall[] response = ApiCall.get(url, new TypeReference<FriendApiCall[]>() {});
-        if (response == null) {
-            return List.of();
-        }
-        return Arrays.stream(response)
-                .map(friend -> new FriendResponse(
-                        friend.getId(),
-                        friend.getUserUUID(),
-                        friend.getFriendUUID(),
-                        friend.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
-    }
-
     public StatisticsResponse getStatisticsByUserUuid(UUID uuid, LocalDate date) {
         String url = "/users/" + uuid + "/statistics" + "?date=" + date.toString();
-        StatisticsApiCall response = ApiCall.get(url, new TypeReference<StatisticsApiCall>() {});
+        StatisticsApiCall response = ApiCall.get(ApiCallUrl.BASE_URL, url, new TypeReference<>() {
+        });
         if (response == null || response.getDates() == null) {
             return null;
         }
         return new StatisticsResponse(
             response.getDates().stream()
-                .map(dateApi -> new StatisticsDateResponse(
+                .map(dateApi -> new StatisticsResponse.StatisticsDateResponse(
                     dateApi.getDate(),
                     dateApi.getHours(),
                     dateApi.getSubjects() == null ? List.of() : dateApi.getSubjects().stream()
-                        .map(subjectApi -> new StatisticsSubjectResponse(
+                        .map(subjectApi -> new StatisticsResponse.StatisticsSubjectResponse(
                             subjectApi.getName(),
                             subjectApi.getHours()
                         ))

@@ -18,20 +18,6 @@ public class TomatoesRoutes {
     @Autowired
     TomatoesControllers tomatoesControllers;
     
-    @Operation(summary = "Get all tomatoes")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved tomatoes"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping
-    public ResponseEntity<List<TomatoResponse>> getTomatoes() {
-        List<TomatoResponse> tomatoes = tomatoesControllers.getTomatoes();
-        if (tomatoes == null) {
-            return ResponseEntity.status(500).build();
-        }
-        return ResponseEntity.ok(tomatoes);
-    }
-    
     @Operation(summary = "Get user's Tomatoes", description = "Fetches the number of tomatoes for a user by their UUID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user's tomatoes"),
@@ -60,20 +46,5 @@ public class TomatoesRoutes {
         }
         TomatoResponse createdTomato = tomatoesControllers.createTomato(tomatoResponse);
         return ResponseEntity.status(201).body(createdTomato);
-    }
-    
-    @Operation(summary = "Delete a tomato", description = "Deletes a tomato entry by its UUID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successfully deleted tomato"),
-            @ApiResponse(responseCode = "404", description = "Tomato not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @DeleteMapping("/{uuid}")
-    public ResponseEntity<TomatoResponse> deleteTomato(@PathVariable("uuid") UUID uuid) {
-        TomatoResponse deletedTomato = tomatoesControllers.deleteTomato(uuid);
-        if (deletedTomato == null) {
-            return ResponseEntity.status(500).build();
-        }
-        return ResponseEntity.ok(deletedTomato);
     }
 }

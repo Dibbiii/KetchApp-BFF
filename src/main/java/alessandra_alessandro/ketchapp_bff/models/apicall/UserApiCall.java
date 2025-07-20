@@ -1,6 +1,5 @@
 package alessandra_alessandro.ketchapp_bff.models.apicall;
 
-import alessandra_alessandro.ketchapp_bff.models.responses.UserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
