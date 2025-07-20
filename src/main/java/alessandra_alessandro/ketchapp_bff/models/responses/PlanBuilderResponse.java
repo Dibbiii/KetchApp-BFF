@@ -1,50 +1,40 @@
 package alessandra_alessandro.ketchapp_bff.models.responses;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlanBuilderResponse {
-    private List<PlanBuilderCalendarResponse> calendar;
-    private List<PlanBuilderTomatoesResponse> tomatoes;
-    private List<PlanBuilderRulesResponse> rules;
-
-    @Setter
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PlanBuilderCalendarResponse {
+    public static class Calendar {
         private String title;
         private String start_at;
         private String end_at;
     }
 
-    @Setter
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PlanBuilderTomatoesResponse {
-        private String title;
+    public static class Tomato {
         private String start_at;
         private String end_at;
         private String pause_end_at;
-        private String subject;
     }
 
-    @Setter
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PlanBuilderRulesResponse {
-        private String title;
-        private String start_at;
-        private String end_at;
+    public static class Subject {
+        private String name;
+        private List<Tomato> tomatoes;
     }
+
+    private List<Calendar> calendar;
+    private List<Subject> subjects;
+
 }
