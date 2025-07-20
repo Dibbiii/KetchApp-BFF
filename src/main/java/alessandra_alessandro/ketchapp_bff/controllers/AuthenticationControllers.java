@@ -1,5 +1,6 @@
 package alessandra_alessandro.ketchapp_bff.controllers;
 
+import alessandra_alessandro.ketchapp_bff.models.requests.CreateUserRequest;
 import alessandra_alessandro.ketchapp_bff.models.requests.LoginRequest;
 import alessandra_alessandro.ketchapp_bff.models.requests.RegisterRequest;
 import alessandra_alessandro.ketchapp_bff.models.responses.AuthUserResponse;
@@ -37,6 +38,13 @@ public class AuthenticationControllers {
         try {
             AuthUserResponse res = ApiCall.post(ApiCallUrl.AUTH_URL, url, dto, AuthUserResponse.class);
             if (res != null) {
+                // Call the second API to create the user in the main DB
+                CreateUserRequest createUserRequest = new CreateUserRequest(res.getId(), res.getUsername(), res.getEmail());
+                Object userDbRes = ApiCall.post(ApiCallUrl.BASE_URL, "/api/users", createUserRequest, Object.class);
+                if (userDbRes == null) {
+                    log.error("Register failed: user creation in main DB failed");
+                    throw new ApiCallException(new ErrorResponse(500, "InternalError", "Errore sconosciuto"));
+                }
                 return res;
             } else {
                 log.error("Register failed: response is null");
