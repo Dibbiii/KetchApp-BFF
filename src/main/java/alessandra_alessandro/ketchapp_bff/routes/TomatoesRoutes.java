@@ -18,21 +18,6 @@ public class TomatoesRoutes {
     @Autowired
     TomatoesControllers tomatoesControllers;
     
-    @Operation(summary = "Get user's Tomatoes", description = "Fetches the number of tomatoes for a user by their UUID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved user's tomatoes"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/{uuid}")
-    public ResponseEntity<TomatoResponse> getTomato(@PathVariable UUID uuid) {
-        TomatoResponse tomatoes = tomatoesControllers.getTomato(uuid);
-        if (tomatoes == null) {
-            return ResponseEntity.status(500).build();
-        }
-        return ResponseEntity.ok(tomatoes);
-    }
-    
     @Operation(summary = "Create a new tomato", description = "Creates a new tomato entry for a user.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successfully created tomato"),

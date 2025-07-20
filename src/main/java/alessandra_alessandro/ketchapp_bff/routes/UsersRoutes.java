@@ -39,14 +39,18 @@ public class UsersRoutes {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user record",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserResponse.class))),
-            @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{uuid}")
-    public ResponseEntity<UserResponse> getUserByUuid(@PathVariable UUID uuid) {
-        UserResponse user = usersController.getUserByUuid(uuid);
+    public ResponseEntity<UserResponse> getUser(@PathVariable UUID uuid) {
+        UserResponse user = usersController.getUser(uuid);
         if (user == null) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.status(404).body(null);
         }
         return ResponseEntity.ok(user);
     }
@@ -61,14 +65,11 @@ public class UsersRoutes {
     })
     @GetMapping("/email/{username}")
     public ResponseEntity<String> getEmailByUsername(@PathVariable String username) {
-        UserResponse userResponse = usersController.getEmailByUsername(username);
-        if (userResponse == null) {
+        String email = usersController.getEmailByUsername(username);
+        if (email == null) {
             return ResponseEntity.status(500).body(null);
         }
-        if (userResponse.getEmail() == null) {
-            return ResponseEntity.status(404).body(null);
-        }
-        return ResponseEntity.ok(userResponse.getEmail());
+        return ResponseEntity.ok(email);
     }
 
     @Operation(summary = "Get user's Tomatoes", description = "Fetches the number of tomatoes for a user by their UUID.")
@@ -80,12 +81,25 @@ public class UsersRoutes {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/{uuid}/tomatoes")
-    public ResponseEntity<List<TomatoResponse>> getUserTomatoes(@PathVariable UUID uuid) {
-        List<TomatoResponse> tomatoes = usersController.getUserTomatoes(uuid);
-        if (tomatoes == null) {
-            return ResponseEntity.status(500).body(null);
+    public ResponseEntity<List<TomatoResponse>> getUserTomatoes(@PathVariable UUID uuid,
+                                                                @RequestParam(value = "date", required = false) LocalDate date,
+                                                                @RequestParam(value = "startDate", required = false) LocalDate startDate,
+                                                                @RequestParam(value = "endDate", required = false) LocalDate endDate) {
+        try {
+            List<TomatoResponse> tomatoes;
+            if (startDate != null && endDate != null) {
+                tomatoes = usersController.getUserTomatoes(uuid, startDate, endDate);
+            } else if (date != null) {
+                tomatoes = usersController.getUserTomatoes(uuid, date);
+            } else {
+                tomatoes = usersController.getUserTomatoes(uuid);
+            }
+            return ResponseEntity.ok(tomatoes);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok(tomatoes);
     }
 
     @Operation(summary = "Get activities by user UUID", description = "Fetches a list of activities for a specific user by their UUID.")
@@ -97,8 +111,8 @@ public class UsersRoutes {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/{uuid}/activities")
-    public ResponseEntity<List<ActivityResponse>> getActivitiesByUserUuid(@PathVariable UUID uuid) {
-        List<ActivityResponse> activities = usersController.getActivitiesByUserUuid(uuid);
+    public ResponseEntity<List<ActivityResponse>> getUserActivities(@PathVariable UUID uuid) {
+        List<ActivityResponse> activities = usersController.getUserActivities(uuid);
         if (activities == null) {
             return ResponseEntity.status(500).body(null);
         }
@@ -114,8 +128,8 @@ public class UsersRoutes {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/{uuid}/achievements")
-    public ResponseEntity<List<AchievementResponse>> getAchievementsByUserUuid(@PathVariable UUID uuid) {
-        List<AchievementResponse> achievements = usersController.getAchievementsByUserUuid(uuid);
+    public ResponseEntity<List<AchievementResponse>> getUserAchievements(@PathVariable UUID uuid) {
+        List<AchievementResponse> achievements = usersController.getUserAchievements(uuid);
         if (achievements == null) {
             return ResponseEntity.status(500).body(null);
         }
@@ -131,13 +145,13 @@ public class UsersRoutes {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/{uuid}/statistics")
-    public ResponseEntity<StatisticsResponse> getStatisticsByUserUuid(@PathVariable UUID uuid,
-                                                                      @RequestParam LocalDate date){
-        StatisticsResponse statistics = usersController.getStatisticsByUserUuid(uuid, date);
+    public ResponseEntity<StatisticsResponse> getUserStatistics(@PathVariable UUID uuid,
+                                                                @RequestParam LocalDate startDate,
+                                                                @RequestParam LocalDate endDate) {
+        StatisticsResponse statistics = usersController.getUserStatistics(uuid, startDate, endDate);
         if (statistics == null) {
             return ResponseEntity.status(500).body(null);
         }
         return ResponseEntity.ok(statistics);
     }
 }
-

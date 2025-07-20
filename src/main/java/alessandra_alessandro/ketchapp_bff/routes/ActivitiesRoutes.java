@@ -20,17 +20,6 @@ public class ActivitiesRoutes {
     @Autowired
     ActivitiesControllers activitiesControllers;
 
-    @Operation(summary = "Get all activities by user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Activities retrieved successfully"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/{uuid}")
-    public ResponseEntity<ActivityResponse> getActivity(@PathVariable UUID uuid) {
-        ActivityResponse activities = activitiesControllers.getActivity(uuid);
-        return ResponseEntity.ok(activities);
-    }
-
     @Operation(summary = "Create a new activity")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Activity created successfully"),
@@ -41,23 +30,5 @@ public class ActivitiesRoutes {
     public ResponseEntity<ActivityResponse> createActivity(@RequestBody ActivityResponse activityResponse) {
         ActivityResponse createdActivity = activitiesControllers.createActivity(activityResponse);
         return ResponseEntity.status(201).body(createdActivity);
-    }
-
-    @RestController
-    @RequestMapping("/api/plans")
-    public static class PlanBuilderRoutes {
-        @Autowired
-        PlanBuilderControllers planBuilderControllers;
-        
-        @Operation(summary = "Plan Builder API", description = "Endpoints for managing plan building operations.")
-        @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operation successful"),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-        })
-        @PostMapping
-        public ResponseEntity<PlanBuilderResponse> createPlanBuilder(@RequestBody PlanBuilderResponse planBuilderResponse) {
-            return ResponseEntity.ok(planBuilderControllers.createPlanBuilder(planBuilderResponse));
-        }
     }
 }

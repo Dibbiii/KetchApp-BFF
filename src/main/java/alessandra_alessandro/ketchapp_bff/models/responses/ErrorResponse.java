@@ -5,10 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
-    private String uuid;
-    private String username;
-    private Integer totalHours;
+@AllArgsConstructor
+public class ErrorResponse {
+    private int code;
+    private String error;
+    private String message;
 }
