@@ -34,21 +34,20 @@ public class AuthenticationControllers {
     }
 
     public AuthUserResponse register(RegisterRequest dto) {
-        String url = "/register";
         try {
-            AuthUserResponse res = ApiCall.post(ApiCallUrl.AUTH_URL, url, dto, AuthUserResponse.class);
+            AuthUserResponse res = ApiCall.post(ApiCallUrl.AUTH_URL, "/register", dto, AuthUserResponse.class);
             if (res != null) {
-                // Call the second API to create the user in the main DB
                 CreateUserRequest createUserRequest = new CreateUserRequest(res.getId(), res.getUsername(), res.getEmail());
-                Object userDbRes = ApiCall.post(ApiCallUrl.BASE_URL, "/api/users", createUserRequest, Object.class);
-                if (userDbRes == null) {
-                    log.error("Register failed: user creation in main DB failed");
-                    throw new ApiCallException(new ErrorResponse(500, "InternalError", "Errore sconosciuto"));
+                Object userDbResApi = ApiCall.post(ApiCallUrl.BASE_URL, "/api/users", createUserRequest, Object.class);
+                Object userDbRes = ApiCall.post(ApiCallUrl.BASE_URL, "/users", createUserRequest, Object.class);
+                if (userDbResApi == null || userDbRes == null) {
+                    log.error("Register failed: user creation in main DB failed (one or both endpoints)");
+                    throw new ApiCallException(new ErrorResponse(500, "InternalError", "Unknown error"));
                 }
                 return res;
             } else {
                 log.error("Register failed: response is null");
-                throw new ApiCallException(new ErrorResponse(500, "InternalError", "Errore sconosciuto"));
+                throw new ApiCallException(new ErrorResponse(500, "InternalError", "Unknown error"));
             }
         } catch (ApiCallException ex) {
             ErrorResponse error = ex.getErrorResponse();
