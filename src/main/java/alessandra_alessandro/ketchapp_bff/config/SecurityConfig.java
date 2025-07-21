@@ -1,6 +1,5 @@
 package alessandra_alessandro.ketchapp_bff.config;
 
-
 import alessandra_alessandro.ketchapp_bff.jwt.JwtAuthenticationEntryPoint;
 import alessandra_alessandro.ketchapp_bff.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +25,9 @@ public class SecurityConfig {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+    public SecurityConfig(
+        JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint
+    ) {
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
     }
 
@@ -36,7 +37,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(
+        AuthenticationConfiguration authenticationConfiguration
+    ) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -44,7 +47,6 @@ public class SecurityConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter();
     }
-
 
     /**
      * Configures the security filter chain for HTTP requests.
@@ -56,17 +58,35 @@ public class SecurityConfig {
      * @throws Exception if an error occurs during configuration
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+        throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .anyRequest().permitAll()
-                )
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+            .csrf(AbstractHttpConfigurer::disable)
+            .exceptionHandling(exceptions ->
+                exceptions.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+            )
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authorizeHttpRequests(authorize ->
+                authorize
+                    .requestMatchers(
+                        "/api/auth/**",
+                        "/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**"
+                    )
+                    .permitAll()
+                    .requestMatchers("/api/**")
+                    .authenticated()
+                    .anyRequest()
+                    .permitAll()
+            )
+            .addFilterBefore(
+                jwtAuthenticationFilter(),
+                UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }
@@ -82,10 +102,11 @@ public class SecurityConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("*")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
+                registry
+                    .addMapping("/**")
+                    .allowedOrigins("*")
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedHeaders("*");
             }
         };
     }
