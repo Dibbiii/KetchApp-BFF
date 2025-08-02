@@ -1,7 +1,5 @@
 package alessandra_alessandro.ketchapp_bff.controllers;
 
-import static alessandra_alessandro.ketchapp_bff.utils.ApiCall.log;
-
 import alessandra_alessandro.ketchapp_bff.models.enums.ApiCallUrl;
 import alessandra_alessandro.ketchapp_bff.models.responses.*;
 import alessandra_alessandro.ketchapp_bff.utils.ApiCall;
@@ -19,9 +17,9 @@ public class UsersControllers {
     public List<UserResponse> getUsers() {
         String url = "/users";
         UserResponse[] response = ApiCall.get(
-            ApiCallUrl.BASE_URL,
+            ApiCallUrl.BASE_URL.toString(),
             url,
-            new TypeReference<>() {}
+            UserResponse[].class
         );
         if (response == null) {
             return List.of();
@@ -31,20 +29,24 @@ public class UsersControllers {
 
     public UserResponse getUser(UUID uuid) {
         String url = "/users/" + uuid;
-        return ApiCall.get(ApiCallUrl.BASE_URL, url, new TypeReference<>() {});
+        return ApiCall.get(
+            ApiCallUrl.BASE_URL.toString(),
+            url,
+            UserResponse.class
+        );
     }
 
     public String getEmailByUsername(String username) {
         String url = "/users/email/" + username;
-        return ApiCall.get(ApiCallUrl.BASE_URL, url, new TypeReference<>() {});
+        return ApiCall.get(ApiCallUrl.BASE_URL.toString(), url, String.class);
     }
 
     public List<ActivityResponse> getUserActivities(UUID uuid) {
         String url = "/users/" + uuid + "/activities";
         ActivityResponse[] response = ApiCall.get(
-            ApiCallUrl.BASE_URL,
+            ApiCallUrl.BASE_URL.toString(),
             url,
-            new TypeReference<>() {}
+            ActivityResponse[].class
         );
         if (response == null) {
             return List.of();
@@ -66,9 +68,9 @@ public class UsersControllers {
     public List<AchievementResponse> getUserAchievements(UUID uuid) {
         String url = "/users/" + uuid + "/achievements";
         AchievementResponse[] response = ApiCall.get(
-            ApiCallUrl.BASE_URL,
+            ApiCallUrl.BASE_URL.toString(),
             url,
-            new TypeReference<>() {}
+            AchievementResponse[].class
         );
         if (response == null) {
             return List.of();
@@ -90,18 +92,10 @@ public class UsersControllers {
         LocalDate startDate,
         LocalDate date
     ) {
-        log.info(
-            "Fetching statistics for user UUID: {} from {} to {}",
-            uuid,
-            startDate,
-            date
-        );
         if (uuid == null) {
-            log.error("UUID cannot be null");
             throw new IllegalArgumentException("UUID cannot be null");
         }
         if (startDate == null || date == null) {
-            log.error("Both startDate and date must be provided");
             throw new IllegalArgumentException(
                 "Both startDate and date must be provided"
             );
@@ -113,7 +107,11 @@ public class UsersControllers {
             startDate +
             "&date=" +
             date;
-        return ApiCall.get(ApiCallUrl.BASE_URL, url, new TypeReference<>() {});
+        return ApiCall.get(
+            ApiCallUrl.BASE_URL.toString(),
+            url,
+            StatisticsResponse.class
+        );
     }
 
     public List<TomatoResponse> getUserTomatoes(
@@ -121,27 +119,19 @@ public class UsersControllers {
         LocalDate startDate,
         LocalDate endDate
     ) {
-        log.info(
-            "Fetching tomatoes for user UUID: {} from {} to {}",
-            uuid,
-            startDate,
-            endDate
-        );
         if (uuid == null) {
-            log.error("UUID cannot be null");
             throw new IllegalArgumentException("UUID cannot be null");
         }
         if (startDate == null || endDate == null) {
-            log.error("Both startDate and endDate must be provided");
             throw new IllegalArgumentException(
                 "Both startDate and endDate must be provided"
             );
         }
         String url = "/users/" + uuid + "/tomatoes";
         TomatoResponse[] response = ApiCall.get(
-            ApiCallUrl.BASE_URL,
+            ApiCallUrl.BASE_URL.toString(),
             url,
-            new TypeReference<>() {}
+            TomatoResponse[].class
         );
         if (response == null) {
             return List.of();
@@ -163,20 +153,17 @@ public class UsersControllers {
     }
 
     public List<TomatoResponse> getUserTomatoes(UUID uuid, LocalDate date) {
-        log.info("Fetching tomatoes for user UUID: {} on date: {}", uuid, date);
         if (uuid == null) {
-            log.error("UUID cannot be null");
             throw new IllegalArgumentException("UUID cannot be null");
         }
         if (date == null) {
-            log.error("Date cannot be null");
             throw new IllegalArgumentException("Date cannot be null");
         }
         String url = "/users/" + uuid + "/tomatoes?date=" + date.toString();
         TomatoResponse[] response = ApiCall.get(
-            ApiCallUrl.BASE_URL,
+            ApiCallUrl.BASE_URL.toString(),
             url,
-            new TypeReference<>() {}
+            TomatoResponse[].class
         );
         if (response == null) {
             return List.of();
@@ -198,16 +185,14 @@ public class UsersControllers {
     }
 
     public List<TomatoResponse> getUserTomatoes(UUID uuid) {
-        log.info("Fetching all tomatoes for user UUID: {}", uuid);
         if (uuid == null) {
-            log.error("UUID cannot be null");
             throw new IllegalArgumentException("UUID cannot be null");
         }
         String url = "/users/" + uuid + "/tomatoes";
         TomatoResponse[] response = ApiCall.get(
-            ApiCallUrl.BASE_URL,
+            ApiCallUrl.BASE_URL.toString(),
             url,
-            new TypeReference<>() {}
+            TomatoResponse[].class
         );
         if (response == null) {
             return List.of();

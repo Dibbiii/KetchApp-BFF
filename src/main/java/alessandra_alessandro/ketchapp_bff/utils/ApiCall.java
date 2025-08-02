@@ -2,177 +2,109 @@ package alessandra_alessandro.ketchapp_bff.utils;
 
 import alessandra_alessandro.ketchapp_bff.config.TokenHolder;
 import alessandra_alessandro.ketchapp_bff.models.enums.ApiCallUrl;
-import alessandra_alessandro.ketchapp_bff.models.enums.ErrorType;
-import com.fasterxml.jackson.core.type.TypeReference;
+import alessandra_alessandro.ketchapp_bff.models.responses.ErrorResponse;
+import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 public class ApiCall {
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
+
+    private static final Logger log = (Logger) LoggerFactory.getLogger(
+        ApiCall.class
+    );
+
+    private static final RestTemplate restTemplate = new RestTemplate();
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    public static final Logger log = LoggerFactory.getLogger(ApiCall.class);
 
     /**
-     * Sends an HTTP request and parses the response.
-     * On success (2xx), returns the parsed response body.
-     * On error, throws ApiCallException with a parsed or raw error message.
+     * Effettua una chiamata HTTP POST con supporto per il token Bearer.
+     *
+     * @param baseUrl       Base URL dell'API
+     * @param url           Endpoint relativo
+     * @param request       Corpo della richiesta
+     * @param responseType  Classe della risposta attesa
+     * @param <T>           Tipo della risposta
+     * @return              Oggetto di tipo T come risposta
      */
-    private static <R> R sendRequest(HttpRequest request, TypeReference<R> typeReference, Class<R> responseType) throws IOException, InterruptedException {
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() >= 200 && response.statusCode() < 300) {
-            if (typeReference != null) {
-                return objectMapper.readValue(response.body(), typeReference);
-            } else if (responseType != null) {
-                return objectMapper.readValue(response.body(), responseType);
-            }
-        } else {
-            String message = extractErrorMessage(response.body());
-            int code = response.statusCode();
-            ErrorType errorType = getErrorType(code, message);
-            alessandra_alessandro.ketchapp_bff.models.responses.ErrorResponse error = new alessandra_alessandro.ketchapp_bff.models.responses.ErrorResponse(code, errorType.name(), message);
-            throw new ApiCallException(error);
+    public static <T> T post(
+        ApiCallUrl baseUrl,
+        String url,
+        Object request,
+        Class<T> responseType
+    ) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        String token = TokenHolder.getToken();
+        if (token != null && !token.isEmpty() && url != "/login") {
+            headers.setBearerAuth(token);
         }
-        return null;
-    }
 
-    /**
-     * Extracts the error message from a response body.
-     * If the body is JSON with a 'message' field, returns that field.
-     * Otherwise, returns the raw body.
-     */
-    private static String extractErrorMessage(String body) {
+        HttpEntity<Object> entity = new HttpEntity<>(request, headers);
+
         try {
-            com.fasterxml.jackson.databind.JsonNode node = objectMapper.readTree(body);
-            if (node.has("message")) {
-                return node.get("message").asText();
-            }
-        } catch (Exception ignore) {
+            ResponseEntity<T> response = restTemplate.exchange(
+                baseUrl + url,
+                HttpMethod.POST,
+                entity,
+                responseType
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException ex) {
+            int code = ex.getRawStatusCode();
+            String error = ex.getStatusText();
+
+            throw new ApiCallException(new ErrorResponse(code, error, error));
         }
-        return body;
     }
 
     /**
-     * Determines the appropriate ErrorType based on the HTTP status code and error message.
+     * Effettua una chiamata HTTP GET con supporto per il token Bearer.
      *
-     * @param code    the HTTP status code from the response
-     * @param message the error message from the response body
-     * @return the corresponding ErrorType enum value
+     * @param baseUrl       Base URL dell'API
+     * @param url           Endpoint relativo
+     * @param typeReference TypeReference per la deserializzazione della risposta
+     * @param <T>           Tipo della risposta
+     * @return              Oggetto di tipo T come risposta
      */
-    private static ErrorType getErrorType(int code, String message) {
-        if (code == 409 || message.toLowerCase().contains("conflict")) return ErrorType.Conflict;
-        if (code == 404 || message.toLowerCase().contains("not found")) return ErrorType.NotFound;
-        if (code == 403 || message.toLowerCase().contains("forbidden")) return ErrorType.Forbidden;
-        if (message.toLowerCase().contains("validation error")) return ErrorType.ValidationError;
-        if (message.toLowerCase().contains("database error")) return ErrorType.DatabaseError;
-        if (message.toLowerCase().contains("pool error")) return ErrorType.PoolError;
-        if (message.toLowerCase().contains("blocking operation failed")) return ErrorType.BlockingError;
-        return ErrorType.InternalError;
-    }
-
-    /**
-     * Adds the Authorization header with Bearer token if the URL does not contain /api/auth.
-     *
-     * @param builder the HttpRequest.Builder to modify
-     * @param url     the URL of the request
-     * @return the modified HttpRequest.Builder
-     */
-    private static HttpRequest.Builder addAuthHeaderIfNeeded(HttpRequest.Builder builder, String url) {
-        if (!url.contains("/api/auth")) {
-            String token = TokenHolder.getToken();
-            if (token != null && !token.isEmpty()) {
-                builder.header("Authorization", "Bearer " + token);
-            }
+    public static <T> T get(String baseUrl, String url, Class<T> responseType) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        String token = TokenHolder.getToken();
+        log.info("Bearer token: {}", token);
+        if (token != null && !token.isEmpty() && url != "/login") {
+            headers.setBearerAuth(token);
         }
-        return builder;
-    }
+        log.info(
+            "GET request to {} with headers {} with Bearer token: {}",
+            baseUrl + url,
+            headers,
+            token
+        );
 
-    /**
-     * Sends a GET request to the specified API URL and route, and parses the response into the given type.
-     *
-     * @param apiurl        the base API URL as an ApiCallUrl enum
-     * @param route         the specific route to append to the base URL
-     * @param typeReference the Jackson TypeReference for deserializing the response
-     * @param <T>           the type of the response object
-     * @return the parsed response object, or null if the request fails
-     */
-    public static <T> T get(ApiCallUrl apiurl, String route, TypeReference<T> typeReference) {
-        String url = apiurl.toString() + route;
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .GET();
-        builder = addAuthHeaderIfNeeded(builder, url);
-        HttpRequest request = builder.build();
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
         try {
-            return sendRequest(request, typeReference, null);
-        } catch (IOException | InterruptedException e) {
-            log.error("GET request failed: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Sends a POST request to the specified API URL and route with the given DTO as the request body,
-     * and parses the response into the specified response type.
-     *
-     * @param apiurl       the base API URL as an ApiCallUrl enum
-     * @param route        the specific route to append to the base URL
-     * @param dto          the request body object to be serialized as JSON
-     * @param responseType the class of the response type for deserialization
-     * @param <T>          the type of the request body object
-     * @param <R>          the type of the response object
-     * @return the parsed response object, or null if the request fails
-     */
-    public static <T, R> R post(ApiCallUrl apiurl, String route, T dto, Class<R> responseType) {
-        String url = apiurl.toString() + route;
-        try {
-            String requestBody = objectMapper.writeValueAsString(dto);
-            HttpRequest.Builder builder = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody));
-            builder = addAuthHeaderIfNeeded(builder, url);
-            HttpRequest request = builder.build();
-            return sendRequest(request, null, responseType);
-        } catch (IOException | InterruptedException e) {
-            log.error("POST request failed: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Sends a POST request to the specified API URL and route with the given DTO as the request body,
-     * and parses the response into the specified response type, using the provided Bearer token for authorization.
-     *
-     * @param apiurl       the base API URL as an ApiCallUrl enum
-     * @param route        the specific route to append to the base URL
-     * @param dto          the request body object to be serialized as JSON
-     * @param responseType the class of the response type for deserialization
-     * @param token        the Bearer token to be used for authorization
-     * @param <T>          the type of the request body object
-     * @param <R>          the type of the response object
-     * @return the parsed response object, or null if the request fails
-     */
-    public static <T, R> R postWithToken(ApiCallUrl apiurl, String route, T dto, Class<R> responseType, String token) {
-        String url = apiurl.toString() + route;
-        try {
-            String requestBody = objectMapper.writeValueAsString(dto);
-            HttpRequest.Builder builder = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + token)
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody));
-            HttpRequest request = builder.build();
-            return sendRequest(request, null, responseType);
-        } catch (IOException | InterruptedException e) {
-            log.error("POST request with token failed: {}", e.getMessage());
-            return null;
+            ResponseEntity<T> response = restTemplate.exchange(
+                baseUrl + url,
+                HttpMethod.GET,
+                entity,
+                responseType
+            );
+            log.info("GET response status code: {}", response);
+            return response.getBody();
+        } catch (HttpClientErrorException ex) {
+            int code = ex.getRawStatusCode();
+            String error = ex.getStatusText();
+            String message = ex.getResponseBodyAsString();
+            log.info("GET response error: {}", message);
+            throw new ApiCallException(new ErrorResponse(code, error, message));
         }
     }
 }

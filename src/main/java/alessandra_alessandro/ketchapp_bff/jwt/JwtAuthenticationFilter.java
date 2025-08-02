@@ -1,26 +1,27 @@
 package alessandra_alessandro.ketchapp_bff.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
+import java.util.UUID;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -44,24 +45,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain filterChain
+    ) throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
 
             if (jwt != null && validateToken(jwt)) {
-                String username = getUsernameFromToken(jwt);
+                Jws<Claims> jws = Jwts.parser()
+                    .verifyWith(publicKey)
+                    .build()
+                    .parseSignedClaims(jwt);
 
-                List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        username, null, authorities);
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                Claims claims = jws.getPayload();
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                UUID id = UUID.fromString(claims.getSubject());
+
+                CurrentUserDetails principal = new CurrentUserDetails(id);
+
+                UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                        principal,
+                        null,
+                        null // authorities null, nessun ruolo
+                    );
+                authentication.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request)
+                );
+
+                SecurityContextHolder.getContext().setAuthentication(
+                    authentication
+                );
+            } else {
+                SecurityContextHolder.clearContext();
             }
         } catch (Exception ex) {
-            System.out.println("Cannot set user authentication: " + ex.getMessage());
+            System.out.println(
+                "Cannot set user authentication: " + ex.getMessage()
+            );
         }
 
         filterChain.doFilter(request, response);
@@ -90,12 +113,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     public String getUsernameFromToken(String token) {
         Jws<Claims> jws = Jwts.parser()
-                .verifyWith(publicKey)
-                .build()
-                .parseSignedClaims(token);
+            .verifyWith(publicKey)
+            .build()
+            .parseSignedClaims(token);
 
         if (!"RS256".equals(jws.getHeader().getAlgorithm())) {
-            throw new UnsupportedJwtException("Only RS256 tokens are supported.");
+            throw new UnsupportedJwtException(
+                "Only RS256 tokens are supported."
+            );
         }
 
         return jws.getPayload().getSubject();
@@ -113,12 +138,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public boolean validateToken(String authToken) {
         try {
             Jws<Claims> jws = Jwts.parser()
-                    .verifyWith(publicKey)
-                    .build()
-                    .parseSignedClaims(authToken);
+                .verifyWith(publicKey)
+                .build()
+                .parseSignedClaims(authToken);
 
             if (!"RS256".equals(jws.getHeader().getAlgorithm())) {
-                System.out.println("Invalid JWT algorithm: " + jws.getHeader().getAlgorithm() + ". Only RS256 is supported.");
+                System.out.println(
+                    "Invalid JWT algorithm: " +
+                    jws.getHeader().getAlgorithm() +
+                    ". Only RS256 is supported."
+                );
                 return false;
             }
 
@@ -146,18 +175,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private PublicKey loadPublicKey() {
         try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("public.pem");
+            InputStream is = getClass()
+                .getClassLoader()
+                .getResourceAsStream("public.pem");
             assert is != null;
             String publicKeyPEM = new String(is.readAllBytes())
-                    .replace("-----BEGIN PUBLIC KEY-----", "")
-                    .replace("-----END PUBLIC KEY-----", "")
-                    .replaceAll("\\s", "");
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s", "");
             byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePublic(keySpec);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load public key from PEM file", e);
+            throw new RuntimeException(
+                "Failed to load public key from PEM file",
+                e
+            );
         }
     }
 }
