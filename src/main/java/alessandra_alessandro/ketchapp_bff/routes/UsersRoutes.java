@@ -3,6 +3,11 @@ package alessandra_alessandro.ketchapp_bff.routes;
 import alessandra_alessandro.ketchapp_bff.annotations.CurrentUser;
 import alessandra_alessandro.ketchapp_bff.controllers.UsersControllers;
 import alessandra_alessandro.ketchapp_bff.models.responses.*;
+import alessandra_alessandro.ketchapp_bff.models.responses.AchievementResponse;
+import alessandra_alessandro.ketchapp_bff.models.responses.ActivityResponse;
+import alessandra_alessandro.ketchapp_bff.models.responses.StatisticsResponse;
+import alessandra_alessandro.ketchapp_bff.models.responses.TomatoResponse;
+import alessandra_alessandro.ketchapp_bff.models.responses.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,9 +35,7 @@ public class UsersRoutes {
             return ResponseEntity.status(401).build();
         }
         // Recupera i dati completi dell'utente usando lo username (o uuid se disponibile)
-        UserResponse fullUser = usersController.getUser(
-            UUID.fromString(user.getUuid())
-        );
+        UserResponse fullUser = usersController.getUser(user.getId());
         if (fullUser == null) {
             return ResponseEntity.status(404).build();
         }
@@ -47,9 +50,7 @@ public class UsersRoutes {
             return ResponseEntity.status(401).build();
         }
         List<AchievementResponse> achievements =
-            usersController.getUserAchievements(
-                UUID.fromString(user.getUuid())
-            );
+            usersController.getUserAchievements(user.getId());
         if (achievements == null) {
             return ResponseEntity.status(500).body(null);
         }
@@ -66,7 +67,7 @@ public class UsersRoutes {
             return ResponseEntity.status(401).build();
         }
         StatisticsResponse statistics = usersController.getUserStatistics(
-            UUID.fromString(user.getUuid()),
+            user.getId(),
             startDate,
             endDate
         );
@@ -90,7 +91,7 @@ public class UsersRoutes {
             return ResponseEntity.status(401).build();
         }
         List<TomatoResponse> tomatoes;
-        UUID uuid = UUID.fromString(user.getUuid());
+        UUID uuid = user.getId();
         if (startDate != null && endDate != null) {
             tomatoes = usersController.getUserTomatoes(
                 uuid,
@@ -113,7 +114,7 @@ public class UsersRoutes {
             return ResponseEntity.status(401).build();
         }
         List<ActivityResponse> activities = usersController.getUserActivities(
-            UUID.fromString(user.getUuid())
+            user.getId()
         );
         if (activities == null) {
             return ResponseEntity.status(500).body(null);

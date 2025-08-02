@@ -1,6 +1,7 @@
 package alessandra_alessandro.ketchapp_bff.config;
 
 import alessandra_alessandro.ketchapp_bff.annotations.CurrentUser;
+import alessandra_alessandro.ketchapp_bff.jwt.CurrentUserDetails;
 import alessandra_alessandro.ketchapp_bff.models.responses.UserResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
@@ -36,13 +37,15 @@ public class CurrentUserArgumentResolver
         NativeWebRequest webRequest,
         WebDataBinderFactory binderFactory
     ) {
+        // Recupera la richiesta HTTP
         Authentication authentication =
             SecurityContextHolder.getContext().getAuthentication();
         if (
             authentication != null &&
-            authentication.getPrincipal() instanceof String username
+            authentication.getPrincipal() instanceof
+            CurrentUserDetails userDetails
         ) {
-            return new UserResponse(null, username, null);
+            return new UserResponse(userDetails.getId());
         }
         return null;
     }

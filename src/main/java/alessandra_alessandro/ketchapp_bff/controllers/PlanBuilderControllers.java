@@ -9,11 +9,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class PlanBuilderControllers {
 
-    public PlanBuilderResponse createPlanBuilder(PlanBuilderRequest planBuilderRequest) {
+    public PlanBuilderResponse createPlanBuilder(
+        PlanBuilderRequest planBuilderRequest
+    ) {
         String url = "/plans";
-        PlanBuilderResponse response = ApiCall.post(ApiCallUrl.BASE_URL, url, planBuilderRequest, PlanBuilderResponse.class);
+        PlanBuilderResponse response = ApiCall.post(
+            ApiCallUrl.BASE_URL,
+            url,
+            planBuilderRequest,
+            PlanBuilderResponse.class
+        );
         if (response == null) {
-            throw new RuntimeException("Failed to create plan builder: response is null");
+            throw new RuntimeException(
+                "Failed to create plan builder: response is null"
+            );
         }
         return response;
     }
