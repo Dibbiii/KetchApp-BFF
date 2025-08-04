@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users")
 @RestController
 public class UsersRoutes {
+
+    private static final Logger log = LoggerFactory.getLogger(
+        UsersRoutes.class
+    );
 
     @Autowired
     UsersControllers usersController;
@@ -87,6 +93,13 @@ public class UsersRoutes {
         ) LocalDate startDate,
         @RequestParam(value = "endDate", required = false) LocalDate endDate
     ) {
+        log.info(
+            "[GETUSERTOMATOES] User: {}, Date: {}, Start Date: {}, End Date: {}",
+            user,
+            date,
+            startDate,
+            endDate
+        );
         if (user == null) {
             return ResponseEntity.status(401).build();
         }

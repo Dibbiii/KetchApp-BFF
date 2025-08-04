@@ -4,6 +4,7 @@ import alessandra_alessandro.ketchapp_bff.jwt.JwtAuthenticationEntryPoint;
 import alessandra_alessandro.ketchapp_bff.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -78,6 +79,8 @@ public class SecurityConfig {
                         "/v3/api-docs/**",
                         "/api-docs"
                     )
+                    .permitAll()
+                    .requestMatchers(HttpMethod.OPTIONS, "/**")
                     .permitAll()
                     .requestMatchers("/api/**")
                     .authenticated()
