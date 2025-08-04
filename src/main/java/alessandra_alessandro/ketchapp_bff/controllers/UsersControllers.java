@@ -90,14 +90,14 @@ public class UsersControllers {
     public StatisticsResponse getUserStatistics(
         UUID uuid,
         LocalDate startDate,
-        LocalDate date
+        LocalDate endDate
     ) {
         if (uuid == null) {
             throw new IllegalArgumentException("UUID cannot be null");
         }
-        if (startDate == null || date == null) {
+        if (startDate == null || endDate == null) {
             throw new IllegalArgumentException(
-                "Both startDate and date must be provided"
+                "Both startDate and endDate must be provided"
             );
         }
         String url =
@@ -105,8 +105,8 @@ public class UsersControllers {
             uuid +
             "/statistics?startDate=" +
             startDate +
-            "&date=" +
-            date;
+            "&endDate=" +
+            endDate;
         return ApiCall.get(
             ApiCallUrl.BASE_URL.toString(),
             url,
@@ -127,7 +127,20 @@ public class UsersControllers {
                 "Both startDate and endDate must be provided"
             );
         }
-        String url = "/users/" + uuid + "/tomatoes";
+        StringBuilder urlBuilder = new StringBuilder(
+            "/users/" + uuid + "/tomatoes"
+        );
+        boolean hasQuery = false;
+        if (startDate != null) {
+            urlBuilder.append(hasQuery ? "&" : "?");
+            urlBuilder.append("startDate=").append(startDate);
+            hasQuery = true;
+        }
+        if (endDate != null) {
+            urlBuilder.append(hasQuery ? "&" : "?");
+            urlBuilder.append("endDate=").append(endDate);
+        }
+        String url = urlBuilder.toString();
         TomatoResponse[] response = ApiCall.get(
             ApiCallUrl.BASE_URL.toString(),
             url,
