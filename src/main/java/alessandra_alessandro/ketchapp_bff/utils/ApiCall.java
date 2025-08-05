@@ -21,7 +21,6 @@ public class ApiCall {
     );
 
     private static final RestTemplate restTemplate = new RestTemplate();
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * Effettua una chiamata HTTP POST con supporto per il token Bearer.

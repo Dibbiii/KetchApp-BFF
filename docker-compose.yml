@@ -1,6 +1,11 @@
-version: '3.8'
 services:
   ketchapp-bff-api:
     build: .
     ports:
       - "8080:8080"
+    networks:
+      - ketchapp-net
+
+networks:
+  ketchapp-net:
+    external: true

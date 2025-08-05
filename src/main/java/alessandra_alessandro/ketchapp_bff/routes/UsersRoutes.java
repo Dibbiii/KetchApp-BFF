@@ -156,8 +156,8 @@ public class UsersRoutes {
         }
     )
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getUsers() {
-        List<UserResponse> users = usersController.getUsers();
+    public ResponseEntity<List<UsersResponse>> getUsers() {
+        List<UsersResponse> users = usersController.getUsers();
         return ResponseEntity.ok(users);
     }
 
