@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class UsersControllers {
 
-    public List<UserResponse> getUsers() {
+    public List<UsersResponse> getUsers() {
         String url = "/users";
-        UserResponse[] response = ApiCall.get(
+        UsersResponse[] response = ApiCall.get(
             ApiCallUrl.BASE_URL.toString(),
             url,
-            UserResponse[].class
+            UsersResponse[].class
         );
         if (response == null) {
             return List.of();
@@ -80,8 +80,9 @@ public class UsersControllers {
                 new AchievementResponse(
                     achievement.getId(),
                     achievement.getUserUUID(),
-                    achievement.getAchievementNumber(),
-                    achievement.getCreatedAt()
+                    achievement.getDescription(),
+                    achievement.getCreatedAt(),
+                    achievement.isCompleted()
                 )
             )
             .collect(Collectors.toList());

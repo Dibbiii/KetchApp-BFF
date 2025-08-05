@@ -78,6 +78,7 @@ public class AuthenticationControllers {
                 dto,
                 AuthUserResponse.class
             );
+            System.out.println("res: " + res);
             if (res != null) {
                 TokenHolder.setToken(res.getToken());
                 CreateUserRequest createUserRequest = new CreateUserRequest(

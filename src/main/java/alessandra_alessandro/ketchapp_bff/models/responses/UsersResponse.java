@@ -8,13 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
-
-    public UserResponse(UUID id) {
-        this.id = id;
-    }
+public class UsersResponse {
 
     private UUID id;
     private String username;
-    private String email;
+    private Integer totalHours;
 }
